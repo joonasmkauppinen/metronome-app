@@ -38,7 +38,8 @@ components/
   bpm-slider.tsx                 # Horizontal slider, range 20–300
   tap-tempo-button.tsx           # TAP button, calculates BPM from taps
   play-stop-button.tsx           # Large play/stop toggle
-  time-signature-picker.tsx      # Numerator + denominator pickers
+  time-signature-picker.tsx      # Two stacked horizontal scroll inputs (numerator / denominator)
+  horizontal-scroll-picker.tsx  # Reusable horizontal scroll selector component
 
 hooks/
   use-metronome.ts               # All metronome state and logic
@@ -178,8 +179,11 @@ Scheduler calls `onBeat(beatIndex)` callback → updates `currentBeat` in React 
 
 ### Time Signature Picker
 
-- Two adjacent scroll pickers: numerator (1–12) and denominator (2, 4, 8)
-- Displayed as `4 / 4`
+- Two custom horizontal scroll inputs stacked vertically (numerator on top, denominator below)
+- Each row: swipe/scroll left-right to cycle through values
+  - Numerator: 1–12
+  - Denominator: 2, 4, 8
+- Selected value centered and highlighted; adjacent values visible and dimmed
 - Change takes effect immediately: beat counter resets to 0 on change
 
 ### Play/Stop Button
@@ -210,7 +214,6 @@ Already installed:
 
 New dependencies needed:
 - `expo-audio` — sound playback (`expo-av` successor, not yet in package.json)
-- `@react-native-picker/picker` — time signature scroll picker (or implement custom scroll wheel if picker feels too heavy)
 
 ---
 
