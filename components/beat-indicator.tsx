@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 const CIRCLE_SIZE = 120;
 const DOT_SIZE = 8;
@@ -24,15 +25,17 @@ export function BeatIndicator({ currentBeat, beatPulse, numerator, isPlaying }: 
 
   useEffect(() => {
     if (!isPlaying) {
-      scale.value = withSpring(1);
+      scale.value = withTiming(1, { duration: 300, easing: Easing.ease });
       isAccent.value = false;
       return;
     }
+
     isAccent.value = currentBeat === 0;
-    scale.value = withSpring(1.25, { damping: 6, stiffness: 400 }, () => {
-      scale.value = withSpring(1, { damping: 10, stiffness: 200 });
+
+    scale.value = withTiming(1.15, { duration: 50, }, () => {
+      scale.value = withTiming(1, { duration: 300, easing: Easing.ease });
     });
-  }, [beatPulse, isPlaying]);
+  }, [beatPulse, currentBeat, isAccent, isPlaying, scale]);
 
   const circleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
