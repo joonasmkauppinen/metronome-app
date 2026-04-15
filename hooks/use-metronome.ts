@@ -15,6 +15,7 @@ export interface MetronomeState {
   timeSignature: TimeSignature;
   setTimeSignature: (ts: TimeSignature) => void;
   currentBeat: number;
+  beatPulse: number;
   tapTempo: () => void;
 }
 
@@ -29,6 +30,7 @@ export function useMetronome(): MetronomeState {
     denominator: 4,
   });
   const [currentBeat, setCurrentBeat] = useState(0);
+  const [beatPulse, setBeatPulse] = useState(0);
 
   const schedulerRef = useRef<Scheduler | null>(null);
   const tapTimestamps = useRef<number[]>([]);
@@ -36,6 +38,7 @@ export function useMetronome(): MetronomeState {
   useEffect(() => {
     schedulerRef.current = new Scheduler((beat) => {
       setCurrentBeat(beat);
+      setBeatPulse((p) => p + 1);
       playClick(beat === 0);
     });
     return () => schedulerRef.current?.stop();
@@ -92,5 +95,5 @@ export function useMetronome(): MetronomeState {
     setBpm(Math.round(60000 / avgInterval));
   }
 
-  return { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, tapTempo };
+  return { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, beatPulse, tapTempo };
 }

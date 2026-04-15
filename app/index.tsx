@@ -13,7 +13,7 @@ import { TimeSignaturePicker } from '@/components/time-signature-picker';
 import { Colors } from '@/constants/theme';
 
 export default function MetronomeScreen() {
-  const { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, tapTempo } =
+  const { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, beatPulse, tapTempo } =
     useMetronome();
 
   useEffect(() => {
@@ -29,6 +29,7 @@ export default function MetronomeScreen() {
           <View style={styles.section}>
             <BeatIndicator
               currentBeat={currentBeat}
+              beatPulse={beatPulse}
               numerator={timeSignature.numerator}
               isPlaying={isPlaying}
             />

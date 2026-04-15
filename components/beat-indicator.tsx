@@ -13,11 +13,12 @@ const MAX_DOTS = 12;
 
 interface Props {
   currentBeat: number;
+  beatPulse: number;
   numerator: number;
   isPlaying: boolean;
 }
 
-export function BeatIndicator({ currentBeat, numerator, isPlaying }: Props) {
+export function BeatIndicator({ currentBeat, beatPulse, numerator, isPlaying }: Props) {
   const scale = useSharedValue(1);
   const isAccent = useSharedValue(false);
 
@@ -31,7 +32,7 @@ export function BeatIndicator({ currentBeat, numerator, isPlaying }: Props) {
     scale.value = withSpring(1.25, { damping: 6, stiffness: 400 }, () => {
       scale.value = withSpring(1, { damping: 10, stiffness: 200 });
     });
-  }, [currentBeat, isPlaying]);
+  }, [beatPulse, isPlaying]);
 
   const circleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -49,8 +50,8 @@ export function BeatIndicator({ currentBeat, numerator, isPlaying }: Props) {
             key={i}
             style={[
               styles.dot,
-              i === currentBeat && isPlaying && styles.dotActive,
               i === 0 && styles.dotAccent,
+              i === currentBeat && isPlaying && styles.dotActive,
             ]}
           />
         ))}
