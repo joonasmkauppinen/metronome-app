@@ -1,19 +1,18 @@
-import { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { initAudio, unloadAudio } from '@/engine/audio';
-import { useMetronome } from '@/hooks/use-metronome';
 import { BeatIndicator } from '@/components/beat-indicator';
 import { BpmDisplay } from '@/components/bpm-display';
 import { BpmSlider } from '@/components/bpm-slider';
-import { TapTempoButton } from '@/components/tap-tempo-button';
 import { PlayStopButton } from '@/components/play-stop-button';
 import { TimeSignaturePicker } from '@/components/time-signature-picker';
 import { Colors } from '@/constants/theme';
+import { initAudio, unloadAudio } from '@/engine/audio';
+import { useMetronome } from '@/hooks/use-metronome';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MetronomeScreen() {
-  const { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, beatPulse, tapTempo } =
+  const { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, beatPulse } =
     useMetronome();
 
   useEffect(() => {
@@ -43,11 +42,6 @@ export default function MetronomeScreen() {
           {/* BPM slider */}
           <View style={[styles.section, styles.sliderSection]}>
             <BpmSlider bpm={bpm} onBpmChange={setBpm} />
-          </View>
-
-          {/* Tap tempo */}
-          <View style={styles.section}>
-            <TapTempoButton onTap={tapTempo} />
           </View>
 
           {/* Time signature */}

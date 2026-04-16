@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { Scheduler } from '@/engine/scheduler';
 import { playClick } from '@/engine/audio';
+import { Scheduler } from '@/engine/scheduler';
+import { useEffect, useRef, useState } from 'react';
 
 export interface TimeSignature {
   numerator: number;
@@ -16,11 +16,7 @@ export interface MetronomeState {
   setTimeSignature: (ts: TimeSignature) => void;
   currentBeat: number;
   beatPulse: number;
-  tapTempo: () => void;
 }
-
-const TAP_RESET_MS = 3000;
-const MAX_TAPS = 4;
 
 export function useMetronome(): MetronomeState {
   const [bpm, setBpmState] = useState(120);
@@ -33,7 +29,6 @@ export function useMetronome(): MetronomeState {
   const [beatPulse, setBeatPulse] = useState(0);
 
   const schedulerRef = useRef<Scheduler | null>(null);
-  const tapTimestamps = useRef<number[]>([]);
 
   useEffect(() => {
     schedulerRef.current = new Scheduler((beat) => {
@@ -73,27 +68,5 @@ export function useMetronome(): MetronomeState {
     setTimeSignatureState(ts);
   }
 
-  function tapTempo(): void {
-    const now = Date.now();
-    const timestamps = tapTimestamps.current;
-
-    if (timestamps.length > 0 && now - timestamps[timestamps.length - 1] > TAP_RESET_MS) {
-      tapTimestamps.current = [now];
-      return;
-    }
-
-    const updated = [...timestamps, now].slice(-MAX_TAPS);
-    tapTimestamps.current = updated;
-
-    if (updated.length < 2) return;
-
-    let totalInterval = 0;
-    for (let i = 1; i < updated.length; i++) {
-      totalInterval += updated[i] - updated[i - 1];
-    }
-    const avgInterval = totalInterval / (updated.length - 1);
-    setBpm(Math.round(60000 / avgInterval));
-  }
-
-  return { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, beatPulse, tapTempo };
+  return { bpm, setBpm, isPlaying, toggle, timeSignature, setTimeSignature, currentBeat, beatPulse };
 }
