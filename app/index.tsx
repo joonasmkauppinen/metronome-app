@@ -7,7 +7,7 @@ import { Colors } from '@/constants/theme';
 import { initAudio, unloadAudio } from '@/engine/audio';
 import { useMetronome } from '@/hooks/use-metronome';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -45,7 +45,8 @@ export default function MetronomeScreen() {
           </View>
 
           {/* Time signature */}
-          <View style={[styles.section, styles.sliderSection]}>
+          <View style={[styles.section]}>
+            <Text style={styles.label}>Time signature</Text>
             <TimeSignaturePicker timeSignature={timeSignature} onChange={setTimeSignature} />
           </View>
 
@@ -75,6 +76,7 @@ const styles = StyleSheet.create({
   },
   section: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
   sliderSection: {
     width: '100%',
@@ -82,5 +84,12 @@ const styles = StyleSheet.create({
   },
   playSection: {
     paddingBottom: 8,
+  },
+  label: {
+    marginBottom: 8,
+    fontSize: 12,
+    letterSpacing: 2,
+    color: Colors.dark.icon,
+    textTransform: 'uppercase',
   },
 });
