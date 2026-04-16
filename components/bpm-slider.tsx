@@ -1,15 +1,12 @@
-import { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  runOnJS,
-} from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-const THUMB_RADIUS = 14;
-const TRACK_HEIGHT = 3;
+const STEP_WIDTH = 14;
+const DIAL_HEIGHT = 56;
+const TICK_TALL = 24;
+const TICK_MID = 14;
+const TICK_SHORT = 8;
 
 interface Props {
   bpm: number;
@@ -19,92 +16,124 @@ interface Props {
 }
 
 export function BpmSlider({ bpm, onBpmChange, min = 20, max = 300 }: Props) {
-  const trackWidth = useSharedValue(0);
-  const thumbX = useSharedValue(0); // left edge of thumb, 0 → trackWidth - THUMB_RADIUS*2
-  const startX = useSharedValue(0);
-  const isDragging = useSharedValue(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const isUserScrolling = useRef(false);
+  const [sidePadding, setSidePadding] = useState(
+    () => Dimensions.get('window').width / 2 - STEP_WIDTH / 2
+  );
 
-  // Sync thumb from bpm prop when not dragging
+  const ticks = useMemo(() => {
+    const arr: number[] = [];
+    for (let i = min; i <= max; i++) arr.push(i);
+    return arr;
+  }, [min, max]);
+
   useEffect(() => {
-    if (!isDragging.value && trackWidth.value > 0) {
-      const maxX = trackWidth.value - THUMB_RADIUS * 2;
-      thumbX.value = ((bpm - min) / (max - min)) * maxX;
+    if (!isUserScrolling.current) {
+      scrollRef.current?.scrollTo({
+        x: (bpm - min) * STEP_WIDTH,
+        animated: false,
+      });
     }
-  }, [bpm, min, max]);
+  }, [bpm, min, sidePadding]);
 
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      isDragging.value = true;
-      startX.value = thumbX.value;
-    })
-    .onUpdate((e) => {
-      const maxX = trackWidth.value - THUMB_RADIUS * 2;
-      const newX = Math.max(0, Math.min(maxX, startX.value + e.translationX));
-      thumbX.value = newX;
-      const ratio = maxX > 0 ? newX / maxX : 0;
-      const newBpm = Math.round(min + ratio * (max - min));
-      runOnJS(onBpmChange)(newBpm);
-    })
-    .onEnd(() => {
-      isDragging.value = false;
-    });
-
-  const thumbStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: thumbX.value }],
-  }));
-
-  const fillStyle = useAnimatedStyle(() => ({
-    width: thumbX.value + THUMB_RADIUS,
-  }));
+  const handleScrollEnd = useCallback(
+    (e: { nativeEvent: { contentOffset: { x: number } } }) => {
+      isUserScrolling.current = false;
+      const x = e.nativeEvent.contentOffset.x;
+      const newBpm = Math.max(min, Math.min(max, min + Math.round(x / STEP_WIDTH)));
+      onBpmChange(newBpm);
+    },
+    [min, max, onBpmChange]
+  );
 
   return (
     <View
       style={styles.container}
       onLayout={(e) => {
-        const width = e.nativeEvent.layout.width;
-        trackWidth.value = width;
-        const maxX = width - THUMB_RADIUS * 2;
-        thumbX.value = ((bpm - min) / (max - min)) * maxX;
+        const w = e.nativeEvent.layout.width;
+        setSidePadding(Math.max(0, w / 2 - STEP_WIDTH / 2));
       }}
     >
-      {/* Track */}
-      <View style={styles.track}>
-        <Animated.View style={[styles.fill, fillStyle]} />
-      </View>
-      {/* Thumb */}
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.thumb, thumbStyle]} />
-      </GestureDetector>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={STEP_WIDTH}
+        decelerationRate="fast"
+        onScrollBeginDrag={() => {
+          isUserScrolling.current = true;
+        }}
+        onMomentumScrollEnd={handleScrollEnd}
+        onScrollEndDrag={handleScrollEnd}
+        contentContainerStyle={[styles.content, { paddingHorizontal: sidePadding }]}
+      >
+        {ticks.map((v) => {
+          const isTen = v % 10 === 0;
+          const isFive = v % 5 === 0;
+          const tickH = isTen ? TICK_TALL : isFive ? TICK_MID : TICK_SHORT;
+          const tickOpacity = isTen ? 1 : isFive ? 0.55 : 0.3;
+          return (
+            <View key={v} style={styles.tickItem}>
+              {isTen && <View style={styles.isTenContainer}>
+                <Text style={styles.label}>{v}</Text>
+              </View>}
+              <View style={[styles.tick, { height: tickH, opacity: tickOpacity }]} />
+            </View>
+          );
+        })}
+      </ScrollView>
+      <View style={styles.indicator} pointerEvents="none" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    height: THUMB_RADIUS * 2,
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  track: {
-    position: 'absolute',
-    left: THUMB_RADIUS,
-    right: THUMB_RADIUS,
-    height: TRACK_HEIGHT,
-    backgroundColor: Colors.dark.icon + '40',
-    borderRadius: TRACK_HEIGHT / 2,
+    height: DIAL_HEIGHT,
     overflow: 'hidden',
   },
-  fill: {
-    height: TRACK_HEIGHT,
-    backgroundColor: Colors.dark.tint,
-    borderRadius: TRACK_HEIGHT / 2,
+  content: {
+    flexDirection: 'row',
+    height: DIAL_HEIGHT,
   },
-  thumb: {
+  tickItem: {
+    width: STEP_WIDTH,
+    height: DIAL_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 4,
+    overflow: 'visible',
+  },
+  tick: {
+    width: 1.5,
+    borderRadius: 1,
+    backgroundColor: Colors.dark.icon,
+  },
+  isTenContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+    flexDirection: 'column',
     position: 'absolute',
-    width: THUMB_RADIUS * 2,
-    height: THUMB_RADIUS * 2,
-    borderRadius: THUMB_RADIUS,
-    backgroundColor: Colors.dark.tint,
+    top: 12,
+    left: -10,
+    right: -10,
+  },
+  label: {
+    zIndex: 10,
+    overflow: 'visible',
+    fontSize: 10,
+    color: Colors.dark.icon,
+    fontVariant: ['tabular-nums'],
+  },
+  indicator: {
+    position: 'absolute',
     top: 0,
+    bottom: 0,
+    left: '50%',
+    width: 2,
+    marginLeft: -1,
+    backgroundColor: Colors.dark.tint,
   },
 });
