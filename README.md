@@ -3,7 +3,7 @@
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 <div align="center">
-  <img width="500" alt="Screenshot 2026-04-17 at 12 53 08" src="https://github.com/user-attachments/assets/e77cde68-c053-46a8-99bc-78e229a8ba15" />
+  <img width="400" alt="Image" src="https://github.com/user-attachments/assets/38b5c571-3705-4925-8832-cdf4e371281b" />
 </div>
 
 ## Run project
