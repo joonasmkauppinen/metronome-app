@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet } from 'react-native';
 import { HorizontalScrollPicker } from '@/components/horizontal-scroll-picker';
-import type { TimeSignature } from '@/hooks/use-metronome';
 import { Colors } from '@/constants/theme';
+import type { TimeSignature } from '@/hooks/use-metronome';
+import { StyleSheet, Text, View } from 'react-native';
 
 const NUMERATORS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const DENOMINATORS: (2 | 4 | 8)[] = [2, 4, 8];
+const DENOMINATORS = [4];
 
 interface Props {
   timeSignature: TimeSignature;
@@ -19,10 +19,6 @@ export function TimeSignaturePicker({ timeSignature, onChange }: Props) {
     onChange({ ...timeSignature, numerator: NUMERATORS[index] });
   }
 
-  function handleDenominatorSelect(index: number) {
-    onChange({ ...timeSignature, denominator: DENOMINATORS[index] });
-  }
-
   return (
     <View style={styles.container}>
       <HorizontalScrollPicker
@@ -34,7 +30,6 @@ export function TimeSignaturePicker({ timeSignature, onChange }: Props) {
       <HorizontalScrollPicker
         values={DENOMINATORS}
         selectedIndex={denominatorIndex}
-        onSelect={handleDenominatorSelect}
       />
     </View>
   );

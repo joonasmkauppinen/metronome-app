@@ -1,13 +1,13 @@
-import { useRef, useEffect, useState } from 'react';
-import { ScrollView, View, Text, Pressable, StyleSheet, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { Colors } from '@/constants/theme';
+import { useEffect, useRef, useState } from 'react';
+import { NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const ITEM_WIDTH = 56;
 
 interface Props<T> {
   values: T[];
   selectedIndex: number;
-  onSelect: (index: number) => void;
+  onSelect?: (index: number) => void;
   label?: string;
 }
 
@@ -26,7 +26,7 @@ export function HorizontalScrollPicker<T>({ values, selectedIndex, onSelect, lab
   function handleScrollEnd(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const offsetX = e.nativeEvent.contentOffset.x;
     const index = Math.max(0, Math.min(values.length - 1, Math.round(offsetX / ITEM_WIDTH)));
-    onSelect(index);
+    onSelect?.(index);
   }
 
   return (
@@ -50,7 +50,7 @@ export function HorizontalScrollPicker<T>({ values, selectedIndex, onSelect, lab
             <Pressable
               key={index}
               style={styles.item}
-              onPress={() => onSelect(index)}
+              onPress={() => onSelect?.(index)}
             >
               <Text style={[styles.itemText, index === selectedIndex && styles.itemTextSelected]}>
                 {String(value)}
