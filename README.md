@@ -1,8 +1,20 @@
-# Welcome to your Expo app 👋
+# Metronome app
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+<div align="center">
+  <img width="500" alt="Screenshot 2026-04-17 at 12 53 08" src="https://github.com/user-attachments/assets/e77cde68-c053-46a8-99bc-78e229a8ba15" />
+</div>
+
+## Run project
+
+0. Clone the repo
+
+   ```bash
+   git clone git@github.com:joonasmkauppinen/metronome-app.git
+
+   cd metronome-app
+   ```
 
 1. Install dependencies
 
@@ -12,39 +24,33 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 2. Start the app
 
+   For Expo Go:
+
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+   iOS simulator:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   npm run ios
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Design decisions
 
-## Get a fresh project
+Goal was to leverage agentic coding as much as possible to build the app. Claude Code with superpowers:brainstorming was used to generate the implementation plan. The full plan specification can be found [here](docs/superpowers/plans/2026-04-15-metronome.md).
 
-When you're ready, run:
+In short:
+- The metronome functionality is built with `expo-av` and `setInterval`-based scheduler.
+- There is support for basic time signatures, but no support for accents or more complex time signatures
+- The app accents the first beat of each measure by using a different sound for it, and also visually indicates the current beat with an animated circle.
 
-```bash
-npm run reset-project
-```
+## Known limitations
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+- The scheduler is not very accurate, especially at higher BPMs. It's ok up to 244 bpm, but above that the timing starts to drift severely. There are also smaller noticeable inconsistencies at lower BPMs, but they are not as severe.
+- Only a simple time signature scale is implemented, with no support for more complex time signatures or accents.
 
-## Learn more
+## Improvements
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Don't use `expo-av`, instead use a more accurate audio library or native code for better timing accuracy. `react-native-audio-api` is one library worth exploring.
+- Implement a more robust scheduling algorithm that can handle timing better.
